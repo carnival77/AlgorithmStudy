@@ -1,82 +1,96 @@
-import sys
+# 탐색 알고리즘 :
+# 각 칸의 오른쪽과 아래쪽과 비교하여 같은 지 확인한다.
+# check 배열로 같으면 True 로 하여, 탐색 중 원본 a를 안전하게 지킨다.
+from collections import deque
 
-dx = [0, 0, 1, -1]
-dy = [1, -1, 0, 0]
+n,m,t = map(int,input().split())
 
+a=[None]
 
-def go(a, x, d, k):
-    if d == 0:
-        a[x] = a[x][-k:] + a[x][:-k]
-    else:
-        a[x] = a[x][k:] + a[x][:k]
+dx=[-1,0,1,0]
+dy=[0,-1,0,1]
 
+for i in range(n):
+    d=deque(list(map(int,input().split())))
+    a.append(d)
 
-def check(a):
-    n = len(a) - 1
-    m = len(a[1])
+# 원판 회전
+def rotation(x,d,k):
+    global a
 
-    d = [[False] * m for _ in range(n + 1)]
+    # 번호가 xi의 배수인 원판을 di방향으로 ki칸 회전시킨다. di가 0인 경우는 시계 방향, 1인 경우는 반시계 방향이다.
+    for i in range(1,n+1):
+        if i%x==0:
+            if d==0: # 시계 방향
+                a[i].rotate(k)
+            else: # 반시계방향
+                a[i].rotate(-k)
 
-    ok = False  # 같은 수 있으면 true, 아니면 false
-    # d[i][j] = true (같은 수), false: (같은 수 아님)
+# 인접한 수 중 같은 수 찾기
+# 각 칸의 오른쪽과 아래쪽과 비교하여 같은 지 확인한다.
+# check 배열로 같으면 True 로 하여, 탐색 중 원본 a를 안전하게 지킨다.
+def find_adjacent_same():
+    global a
 
-    for i in range(1, n + 1):
+    adjacent_same = False
+
+    check=[[False]*m for _ in range(n+1)]
+
+    for i in range(1,n+1):
         for j in range(m):
-            if a[i][j] == 0:
+            if a[i][j]==0:
                 continue
-            if a[i][j] == a[i][(j + 1) % m]:
-                d[i][j] = d[i][(j + 1) % m] = True
-            if i + 1 <= n and a[i][j] == a[i + 1][j]:
-                d[i][j] = d[i + 1][j] = True
-    for i in range(1, n + 1):
+            if a[i][j]==a[i][(j+1)%m]:
+                check[i][j] = check[i][(j+1)%m] = True
+            if i+1<=n and a[i][j] == a[i+1][j]:
+                check[i][j] = check[i+1][j] = True
+
+    for i in range(1,n+1):
         for j in range(m):
-            if d[i][j]:
-                ok = True
-                a[i][j] = 0
+            if check[i][j]:
+                adjacent_same=True
+                a[i][j]=0
 
-    return ok
+    return adjacent_same
 
+# 원판 위의 수의 평균 구하기
+def get_avg():
+    global a
 
-def adjust(a):
-    n = len(a) - 1
-    m = len(a[1])
-    total = 0  # sum
-    cnt = 0
+    total_sum,cnt=0,0
 
-    for i in range(1, n + 1):
+    for i in range(1,n+1):
         for j in range(m):
-            if a[i][j] == 0:
-                continue
-            total += a[i][j]
-            cnt += 1
+            if a[i][j]!=0:
+                total_sum+=a[i][j]
+                cnt+=1
 
     if cnt == 0:
         return
 
-    for i in range(1, n + 1):
-        for j in range(m):
-            if a[i][j] == 0:
-                continue
-            if total < a[i][j] * cnt:
-                # total/cnt < a[i][j] (-1)
-                a[i][j] -= 1
-            elif total > a[i][j] * cnt:
-                # total/cnt > a[i][j] (+1)
-                a[i][j] += 1
+    return total_sum/cnt
 
-
-n, m, t = map(int, input().split())
-a = [None] + [list(map(int, input().split())) for _ in range(n)]
-
+# 시뮬레이션
 for _ in range(t):
-    x, d, k = map(int, input().split())
-    for y in range(x, n + 1, x):
-        go(a, y, d, k)
+    x,d,k = map(int,input().split())
 
-    ok = check(a)
+    #1
+    rotation(x, d, k)
 
-    if ok == False:
-        adjust(a)
+    #2. 인접하면서 수가 같은 것을 모두 찾는다.
+    # 그러한 수가 있는 경우에는 원판에서 인접하면서 같은 수를 모두 지운다.
+    adjacent_same = find_adjacent_same()
+    # 없는 경우에는 원판에 적힌 수의 평균을 구하고, 평균보다 큰 수에서 1을 빼고, 작은 수에는 1을 더한다.
+    if not adjacent_same:
+         avg=get_avg()
+         for i in range(1,n+1):
+             for j in range(m):
+                 if a[i][j]!=0:
+                     if a[i][j]>avg:
+                         a[i][j]-=1
+                     elif a[i][j]<avg:
+                         a[i][j]+=1
 
-ans = sum(sum(row) for row in a[1:])
-print(ans)
+answer=sum(sum(row) for row in a[1:])
+
+print(answer)
