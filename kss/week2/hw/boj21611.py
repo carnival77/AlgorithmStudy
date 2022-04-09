@@ -82,6 +82,8 @@ def explode_balls():
                     explode_ball_list[number]= explode_ball_list[number]+list(range(i-cnt+1,i+1))
                 number = ball
                 cnt = 1
+            if i == len(l)-1 and cnt>=4:
+                explode_ball_list[number]=explode_ball_list[number]+list(range(i-cnt+1,i+1))
         return explode_ball_list
     def delete_balls(explode_ball_list):
         global l
