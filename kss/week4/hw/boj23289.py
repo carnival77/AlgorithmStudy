@@ -63,10 +63,6 @@ def chill_edge():
     for i in range(r):
         if t_board[i][c-1]>0:
             t_board[i][c-1]-=1
-    # t_board[0][0]+=1
-    # t_board[0][c-1]+=1
-    # t_board[r-1][0]+=1
-    # t_board[r-1][c-1]+=1
     
 def is_done():
     global t_board, check_locs,k
@@ -76,7 +72,6 @@ def is_done():
     return True
 def is_blocked(r,c,d):
     global w_board
-    # pdb.set_trace()
     if w_board[r][c][d]:
         return True
     return False
@@ -86,7 +81,6 @@ def blow_heater():# bfs로 풀어야함.
     change_dir = {0:[2,3],1:[2,3],2:[1,0],3:[1,0]}
     d_board = [[0 for _ in range(c)] for _ in range(r)]
     for heater in heaters:
-        # pdb.set_trace()
         rr,cc,d = heater
         visited = [[False for _ in range(c)] for _ in range(r)]
         q = deque()
@@ -129,7 +123,6 @@ def defuse_heat():
                         d_board[nr][nc]+=d_tmp
                         total_tmp +=d_tmp
             d_board[i][j]-=total_tmp
-                # pdb.set_trace()
     return d_board
 
 def change_board(b):
@@ -152,7 +145,5 @@ while True:
     elif t == 100:
         print(101)
         exit()
-    # if t == 53:
-    #     pdb.set_trace()
 
 print(t)
